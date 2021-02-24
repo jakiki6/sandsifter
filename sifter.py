@@ -208,9 +208,9 @@ def int_to_comma(x):
 
 def result_string(insn, result):
     s = "%30s %2d %2d %2d %2d (%s)\n" % (
-            hexlify(insn), result.valid,
+            hexlify(insn).decode(), result.valid,
             result.length, result.signum,
-            result.sicode, hexlify(cstr2py(result.raw_insn)))
+            result.sicode, hexlify(cstr2py(result.raw_insn)).decode())
     return s
 
 class Injector:
@@ -488,7 +488,7 @@ class Gui:
                         mnemonic,
                         op_str,
                         self.T.r.length,
-                        "%s" % hexlify(synth_insn)
+                        "%s" % hexlify(synth_insn).decode()
                     )
                 )
 
@@ -609,7 +609,7 @@ class Gui:
                 try:
                     for (i, r) in enumerate(self.T.al):
                         y = top_bracket_height + 5 + i
-                        insn_hex = hexlify(cstr2py(r.raw_insn))
+                        insn_hex = hexlify(cstr2py(r.raw_insn)).decode()
 
                         # unexplainable hack to remove some of the unexplainable
                         # flicker on my console.  a bug in ncurses?  doesn't
@@ -735,7 +735,7 @@ def cleanup(gui, poll, injector, ts, tests, command_line, args):
 
     if args.save:
         with open(LAST, "w") as f:
-            f.write(hexlify(cstr2py(tests.r.raw_insn)))
+            f.write(hexlify(cstr2py(tests.r.raw_insn)).decode())
 
     sys.exit(0)
 
