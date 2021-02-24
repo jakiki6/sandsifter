@@ -336,8 +336,8 @@ def disassemble(disassembler, bitness, data):
 
 def cleanup(disas):
     disas = disas.strip()
-    disas = disas.replace(',', ', ')
-    disas = " ".join(disas.split())
+    disas = disas.replace(b',', b', ')
+    disas = b" ".join(disas.split())
     return disas
 
 def instruction_length(raw):
@@ -779,25 +779,17 @@ if __name__ == "__main__":
         key = -1
         while key == -1:
             key = gui.get_key()
-        if key == ord('k'):
-            textbox.scroll_up()
-        elif key == ord('K'):
-            for _ in range(10):
-                textbox.scroll_up()
-                smooth_scroll()
-        elif key == ord('j'):
-            textbox.scroll_down()
-        elif key == ord('J'):
-            for _ in range(10):
-                textbox.scroll_down()
-                smooth_scroll()
-        elif key == ord('l'):
+        if key == 0x0a:
             i = textbox.selected_index
             v = lookup[i]
             if type(v) == Catalog:
-                lookup[i].collapsed = False
-                (summary, lookup) = build_instruction_summary(c)
-                textbox.text = summary
+                lookup[i].collapsed = not lookup[i].collapsed
+                if not lookup[i].collapsed:
+                    (summary, lookup) = build_instruction_summary(c)
+                    textbox.text = summary
+                else:
+                    (summary, lookup) = build_instruction_summary(c)
+                    textbox.text = summary
         elif key == ord('L'):
             def expand_all(c):
                 c.collapsed = False
@@ -806,13 +798,6 @@ if __name__ == "__main__":
             expand_all(c)
             (summary, lookup) = build_instruction_summary(c)
             textbox.text = summary
-        elif key == ord('h'):
-            i = textbox.selected_index
-            v = lookup[i]
-            if type(v) == Catalog:
-                lookup[i].collapsed = True
-                (summary, lookup) = build_instruction_summary(c)
-                textbox.text = summary
         elif key == ord('H'):
             def collapse_all(c):
                 c.collapsed = True
@@ -839,6 +824,26 @@ if __name__ == "__main__":
                 smooth_scroll()
         elif key == ord('q'):
             break
+        elif key == 0x1b:   # escape
+            key = -1
+            while key == -1:
+                key = gui.get_key()
+            if key == ord('['):
+                key = -1
+                while key == -1:
+                    key = gui.get_key()
+                if key == ord('A'):
+                    textbox.scroll_up()
+                elif key == ord('B'):
+                    textbox.scroll_down()
+                elif key == ord('C'):
+                    for _ in range(10):
+                        textbox.scroll_down()
+                        smooth_scroll()
+                elif key == ord('D'):
+                    for _ in range(10):             
+                        textbox.scroll_up()
+                        smooth_scroll()
 
     gui.stop()
 
