@@ -759,10 +759,10 @@ if __name__ == "__main__":
 
         draw_infobox(gui, lookup[textbox.selected_index])
 
-        gui.window.addstr(33, 1, "j: down,     J: DOWN", gui.gray(.4))
-        gui.window.addstr(34, 1, "k: up,       K: UP", gui.gray(.4))
-        gui.window.addstr(35, 1, "l: expand    L: all", gui.gray(.4))
-        gui.window.addstr(36, 1, "h: collapse  H: all", gui.gray(.4))
+        gui.window.addstr(33, 1, "↓: down,     →: DOWN", gui.gray(.4))
+        gui.window.addstr(34, 1, "↑: up,       ←: UP", gui.gray(.4))
+        gui.window.addstr(35, 1, "↵: expand    L: all", gui.gray(.4))
+        gui.window.addstr(36, 1, "↵: collapse  H: all", gui.gray(.4))
         gui.window.addstr(37, 1, "g: start     G: end", gui.gray(.4))
         gui.window.addstr(38, 1, "{: previous  }: next", gui.gray(.4))
         gui.window.addstr(39, 1, "q: quit and print", gui.gray(.4))
