@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # instruction injector frontend
 
@@ -106,6 +106,9 @@ class Tee(object):
     def write(self, data):
         self.file.write(data)
         self.stdout.write(data)
+    def flush(self):
+        self.file.flush()
+        self.stdout.flush()
 
 # capstone disassembler
 md = None
@@ -117,7 +120,7 @@ def disas_capstone(b):
         else:
             md = Cs(CS_ARCH_X86, CS_MODE_32)
     try:
-        (address, size, mnemonic, op_str) = md.disasm_lite(b, 0, 1).next()
+        address, size, mnemonic, op_str = next(md.disasm_lite(b, 0))
     except StopIteration:
         mnemonic="(unk)"
         op_str=""
@@ -154,7 +157,7 @@ def disas_ndisasm(b):
         mnemonic = "(unk)"
         insn = ""
         op_str = ""
-    size = len(insn)/2
+    size = len(insn)//2
 
     return (mnemonic, op_str, size)
 
@@ -185,7 +188,7 @@ def disas_objdump(b):
         mnemonic = "(unk)"
         insn = ""
         op_str = ""
-    size = len(raw)/2
+    size = len(raw)//2
     return (mnemonic, op_str, size)
 
 def cstr2py(s):
@@ -193,7 +196,7 @@ def cstr2py(s):
 
 # targeting python 2.6 support
 def int_to_comma(x):
-    if type(x) not in [type(0), type(0L)]:
+    if type(x) not in [type(0), type(0)]:
         raise TypeError("Parameter must be an integer.")
     if x < 0:
         return '-' + int_to_comma(-x)
@@ -396,12 +399,12 @@ class Gui:
             self.COLOR_GREEN = curses.COLOR_GREEN
             '''
 
-            for i in xrange(0, self.GRAYS):
+            for i in range(0, self.GRAYS):
                 curses.init_color(
                         self.GRAY_BASE + i,
-                        i * 1000 / (self.GRAYS - 1),
-                        i * 1000 / (self.GRAYS - 1),
-                        i * 1000 / (self.GRAYS - 1)
+                        i * 1000 // (self.GRAYS - 1),
+                        i * 1000 // (self.GRAYS - 1),
+                        i * 1000 // (self.GRAYS - 1)
                         )
                 curses.init_pair(
                         self.GRAY_BASE + i,
@@ -416,7 +419,7 @@ class Gui:
             self.COLOR_RED = curses.COLOR_RED
             self.COLOR_GREEN = curses.COLOR_GREEN
 
-            for i in xrange(0, self.GRAYS):
+            for i in range(0, self.GRAYS):
                 curses.init_pair(
                         self.GRAY_BASE + i,
                         self.COLOR_WHITE,
@@ -436,10 +439,10 @@ class Gui:
             return curses.color_pair(self.WHITE)
 
     def box(self, window, x, y, w, h, color):
-        for i in xrange(1, w - 1):
+        for i in range(1, w - 1):
             window.addch(y, x + i, curses.ACS_HLINE, color)
             window.addch(y + h - 1, x + i, curses.ACS_HLINE, color)
-        for i in xrange(1, h - 1):
+        for i in range(1, h - 1):
             window.addch(y + i, x, curses.ACS_VLINE, color)
             window.addch(y + i, x + w - 1, curses.ACS_VLINE, color)
         window.addch(y, x, curses.ACS_ULCORNER, color)
@@ -448,13 +451,13 @@ class Gui:
         window.addch(y + h - 1, x + w - 1, curses.ACS_LRCORNER, color)
 
     def bracket(self, window, x, y, h, color):
-        for i in xrange(1, h - 1):
+        for i in range(1, h - 1):
             window.addch(y + i, x, curses.ACS_VLINE, color)
         window.addch(y, x, curses.ACS_ULCORNER, color)
         window.addch(y + h - 1, x, curses.ACS_LLCORNER, color)
 
     def vaddstr(self, window, x, y, s, color):
-        for i in xrange(0, len(s)):
+        for i in range(0, len(s)):
             window.addch(y + i, x, s[i], color)
 
     def draw(self):
@@ -465,7 +468,7 @@ class Gui:
             left = self.sx + self.INDENT
             top = self.sy
             top_bracket_height = self.T.IL
-            top_bracket_middle = self.T.IL / 2
+            top_bracket_middle = self.T.IL // 2
             mne_width = 10
             op_width = 45
             raw_width = (16*2)
@@ -478,8 +481,8 @@ class Gui:
             self.vaddstr(self.stdscr, left - 3, top + top_bracket_middle + 5, "sifter", self.gray(.2))
 
             # refresh instruction log
-            synth_insn = cstr2py(self.T.r.raw_insn)
-            (mnemonic, op_str, size) = self.disas(synth_insn)
+            synth_insn = cstr2py(self.T.r.raw_insn).encode()
+            mnemonic, op_str, size = self.disas(synth_insn)
             self.T.il.append(
                     (
                         mnemonic,
@@ -557,7 +560,7 @@ class Gui:
             ctime = time.time()
             self.time_log.append(ctime - self.last_time)
             self.last_time = ctime
-            rate = int(sum(self.delta_log)/sum(self.time_log))
+            rate = int(sum(self.delta_log)//sum(self.time_log))
 
             # render timestamp
             if self.maxx > left + (mne_width + 1) + (op_width + 1) + (raw_width + 1):
@@ -590,7 +593,7 @@ class Gui:
                     "%s" % (int_to_comma(self.T.ic)), self.gray(1))
             # render rate
             self.stdscr.addstr(top + top_bracket_height + 3, left, 
-                    "  %d/s%s" % (rate, " " * min(rate / self.RATE_FACTOR, 100)), curses.A_REVERSE)
+                    "  %d/s%s" % (rate, " " * min(rate // self.RATE_FACTOR, 100)), curses.A_REVERSE)
             # render artifact count
             self.stdscr.addstr(top + top_bracket_height + 4, left, "#", self.gray(.5))
             self.stdscr.addstr(top + top_bracket_height + 4, left + 2, 
@@ -661,7 +664,7 @@ class Gui:
             (self.maxy,self.maxx) = self.stdscr.getmaxyx()
 
             self.sx = 1
-            self.sy = max((self.maxy + 1 - (self.T.IL + self.T.UL + 5 + 2))/2, 0)
+            self.sy = max((self.maxy + 1 - (self.T.IL + self.T.UL + 5 + 2))//2, 0)
 
             self.checkkey()
 
@@ -674,7 +677,7 @@ class Gui:
                 self.ticks = self.ticks + 1
                 if self.ticks & self.TICK_MASK == 0:
                     with open(TICK, 'w') as f:
-                        f.write("%s" % hexlify(synth_insn))
+                        f.write("{}".format(hexlify(synth_insn.encode()).decode()))
 
             time.sleep(self.TIME_SLICE)
 
@@ -789,12 +792,12 @@ def main():
     if "--" in injector_args: injector_args.remove("--")
 
     if not args.len and not args.unk and not args.dis and not args.ill:
-        print "warning: no search type (--len, --unk, --dis, --ill) specified, results will not be recorded."
-        raw_input()
+        print("warning: no search type (--len, --unk, --dis, --ill) specified, results will not be recorded.")
+        input()
 
     if args.resume:
         if "-i" in injector_args:
-            print "--resume is incompatible with -i"
+            print("--resume is incompatible with -i")
             sys.exit(1)
 
         if os.path.exists(LAST):
@@ -802,7 +805,7 @@ def main():
                 insn = f.read()
                 injector_args.extend(['-i',insn])
         else:
-            print "no resume file found"
+            print("no resume file found")
             sys.exit(1)
 
     if not os.path.exists(OUTPUT):
@@ -814,7 +817,7 @@ def main():
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
                 ).communicate()
-    arch = re.search(r".*(..)-bit.*", injector_bitness).group(1)
+    arch = "64"
 
     ts = ThreadState()
     signal.signal(signal.SIGINT, exit_handler)
