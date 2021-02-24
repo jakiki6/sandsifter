@@ -11,7 +11,7 @@ else:
 
 md = Cs(CS_ARCH_X86, CS_MODE_64)
 try:
-    (address, size, mnemonic, op_str) = md.disasm_lite(unhexlify(byte_string), 0, 1).next()
+    (address, size, mnemonic, op_str) = md.disasm_lite(unhexlify(byte_string), 0).next()
 except StopIteration:
     mnemonic="(unk)"
     op_str=""

@@ -210,7 +210,7 @@ def result_string(insn, result):
     s = "%30s %2d %2d %2d %2d (%s)\n" % (
             hexlify(insn).decode(), result.valid,
             result.length, result.signum,
-            result.sicode, hexlify(cstr2py(result.raw_insn)).decode())
+            result.sicode, hexlify(cstr2py(result.raw_insn).encode()).decode())
     return s
 
 class Injector:
@@ -309,7 +309,7 @@ class Poll:
                     if self.search_ill and self.T.r.disas_known and self.T.r.signum == self.SIGILL:
                         error = True
                 if error:
-                    insn = cstr2py(self.T.r.raw_insn)[:self.T.r.length]
+                    insn = cstr2py(self.T.r.raw_insn).encode()[:self.T.r.length]
                     r = copy.deepcopy(self.T.r)
                     self.T.al.appendleft(r)
                     if insn not in self.T.ad:
@@ -609,7 +609,7 @@ class Gui:
                 try:
                     for (i, r) in enumerate(self.T.al):
                         y = top_bracket_height + 5 + i
-                        insn_hex = hexlify(cstr2py(r.raw_insn)).decode()
+                        insn_hex = hexlify(cstr2py(r.raw_insn).encode()).decode()
 
                         # unexplainable hack to remove some of the unexplainable
                         # flicker on my console.  a bug in ncurses?  doesn't
@@ -668,7 +668,7 @@ class Gui:
 
             self.checkkey()
 
-            synth_insn = cstr2py(self.T.r.raw_insn)
+            synth_insn = cstr2py(self.T.r.raw_insn).encode()
 
             if synth_insn and not self.ts.pause:
                 self.draw()
@@ -677,7 +677,7 @@ class Gui:
                 self.ticks = self.ticks + 1
                 if self.ticks & self.TICK_MASK == 0:
                     with open(TICK, 'w') as f:
-                        f.write("{}".format(hexlify(synth_insn.encode()).decode()))
+                        f.write("{}".format(hexlify(synth_insn).decode()))
 
             time.sleep(self.TIME_SLICE)
 
@@ -735,7 +735,7 @@ def cleanup(gui, poll, injector, ts, tests, command_line, args):
 
     if args.save:
         with open(LAST, "w") as f:
-            f.write(hexlify(cstr2py(tests.r.raw_insn)).decode())
+            f.write(hexlify(cstr2py(tests.r.raw_insn).encode()).decode())
 
     sys.exit(0)
 
