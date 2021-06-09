@@ -156,7 +156,7 @@ state_t inject_state={
 
 #define UD2_SIZE  2
 #define PAGE_SIZE 4096
-#define TF        0x100
+#define TF	    0x100
 
 /* injection */
 
@@ -618,7 +618,7 @@ bool is_prefix(uint8_t x)
 		x==0x64 || /* fs */
 		x==0x65 || /* gs */
 		x==0x66 || /* data */
-		x==0x67    /* addr */
+		x==0x67	/* addr */
 #if __x86_64__
 		|| (x>=0x40 && x<=0x4f) /* rex */
 #endif
@@ -707,26 +707,26 @@ void preamble(void)
 {
 #if __x86_64__
 	__asm__ __volatile__ ("\
-			.global preamble_start                    \n\
-			preamble_start:                           \n\
-			pushfq                                    \n\
-			orq %0, (%%rsp)                           \n\
-			popfq                                     \n\
-			.global preamble_end                      \n\
-			preamble_end:                             \n\
+			.global preamble_start	                \n\
+			preamble_start:	                       \n\
+			pushfq	                                \n\
+			orq %0, (%%rsp)	                       \n\
+			popfq	                                 \n\
+			.global preamble_end	                  \n\
+			preamble_end:	                         \n\
 			"
 			:
 			:"i"(TF)
 			);
 #else
 	__asm__ __volatile__ ("\
-			.global preamble_start                    \n\
-			preamble_start:                           \n\
-			pushfl                                    \n\
-			orl %0, (%%esp)                           \n\
-			popfl                                     \n\
-			.global preamble_end                      \n\
-			preamble_end:                             \n\
+			.global preamble_start	                \n\
+			preamble_start:	                       \n\
+			pushfl	                                \n\
+			orl %0, (%%esp)	                       \n\
+			popfl	                                 \n\
+			.global preamble_end	                  \n\
+			preamble_end:	                         \n\
 			"
 			:
 			:"i"(TF)
@@ -792,7 +792,7 @@ void inject(int insn_size)
 			mov %[r15], %%r15 \n\
 			mov %[rbp], %%rbp \n\
 			mov %[rsp], %%rsp \n\
-			jmp *%[packet]    \n\
+			jmp *%[packet]	\n\
 			"
 			: /* no output */
 			: [rax]"m"(inject_state.rax),
@@ -823,7 +823,7 @@ void inject(int insn_size)
 			mov %[edi], %%edi \n\
 			mov %[ebp], %%ebp \n\
 			mov %[esp], %%esp \n\
-			jmp *%[packet]    \n\
+			jmp *%[packet]	\n\
 			"
 			:
 			:
@@ -841,7 +841,7 @@ void inject(int insn_size)
 
 	__asm__ __volatile__ ("\
 			.global resume   \n\
-			resume:          \n\
+			resume:	      \n\
 			"
 			);
 	;
