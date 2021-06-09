@@ -717,7 +717,7 @@ if __name__ == "__main__":
                     dis_data = o.raw
                 else:
                     # select a prefixed version as an exemplar instruction
-                    dis_data = chr(next(iter(o.prefixes))) + o.raw
+                    dis_data = bytes([next(iter(o.prefixes))]) + o.raw
 
                 if disassembler == CAPSTONE:
                     (asm, raw) = disassemble_capstone(processor.architecture, dis_data)
