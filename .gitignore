@@ -1,3 +1,4 @@
 injector
 injector.o
 data/
+*.pyc

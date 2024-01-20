@@ -168,6 +168,7 @@ search_mode_t mode=TUNNEL;
 void* packet_buffer;
 char* packet;
 
+#define SIGSTKSZ 65536
 static char stack[SIGSTKSZ];
 stack_t ss = { .ss_size = SIGSTKSZ, .ss_sp = stack, };
 
@@ -296,6 +297,7 @@ ignore_op_t opcode_blacklist[MAX_BLACKLIST]={
 	/* ud2 is an undefined opcode, and messes up a length differential search
 	 * b/c of the fault it throws */
 	{ "\x0f\xb9", "ud2" },
+	{ "\xc2", "ret 0x0000" },
 	{ NULL, NULL }
 };
 
