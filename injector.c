@@ -168,6 +168,9 @@ search_mode_t mode=TUNNEL;
 void* packet_buffer;
 char* packet;
 
+#ifdef SIGSTKSZ
+#undef SIGSTKSZ
+#endif
 #define SIGSTKSZ 65536
 static char stack[SIGSTKSZ];
 stack_t ss = { .ss_size = SIGSTKSZ, .ss_sp = stack, };
